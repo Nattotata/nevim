@@ -32,7 +32,7 @@
         {
           minimalist = mkNevim "minimalist";
           full = mkNevim "full";
-          default = mkNevim "minimalist";
+          default = mkNevim "full";
         }
       );
     };
