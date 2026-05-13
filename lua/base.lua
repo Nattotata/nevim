@@ -471,6 +471,10 @@ local picked_logo = logos[math.random(#logos)]
 local status_alpha, alpha = pcall(require, "alpha")
 if status_alpha then
     local dashboard = require("alpha.themes.dashboard")
+    local variant = os.getenv("NEVIM_VARIANT") or "desktop"
+    local color_variant = variant == "pi" and " [ RASPBERRY PI ] " or " [ DESKTOP ] "
+    table.insert(picked_logo, "")
+    table.insert(picked_logo, "      " .. color_variant)
     dashboard.section.header.val = picked_logo
     dashboard.section.buttons.val = {
         dashboard.button("f", "  Find file", ":FzfLua files<CR>"),

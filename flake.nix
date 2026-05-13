@@ -27,6 +27,11 @@
                   exec ${cfg.nvimPkg}/bin/nvim "$@"
                 '')
               ];
+              nativeBuildInputs = [ pkgs.makeWrapper ];
+              postBuild = ''
+                wrapProgram $out/bin/nevim \
+                  --set NEVIM_VARIANT "${profile}"
+              '';
             };
         in
         {
