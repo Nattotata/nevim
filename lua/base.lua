@@ -171,7 +171,8 @@ if status_wk and status_fzf then
             desc = "Messages in Split",
         },
         { "<leader>xc", "<cmd>cclose<cr>", desc = "Close Quickfix Window" },
-        { "<leader>x", group = "Diagnostics/Logs" },
+        { "<leader>xt", "<cmd>Trouble diagnostics toggle<cr>", desc = "Trouble (Project)" },
+        { "<leader>xT", "<cmd>Trouble diagnostics toggle filter.buf=0<cr>", desc = "Trouble (Buffer)" },
         {
             "<leader>xc",
             function()
@@ -197,6 +198,7 @@ if status_wk and status_fzf then
         },
         -- code
         { "<leader>c", group = "Code" },
+        { "<leader>co", "<CMD>Oil<CR>", desc = "Oil (Edit Filesystem)" },
         {
             "<leader>cf",
             function()

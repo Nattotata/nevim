@@ -21,7 +21,7 @@ let
       customRC = ''
         lua << takovydlefousy
         ${baseLua}
-        ${fullLua}
+        ${if profile == "desktop" then fullLua else ""}
         takovydlefousy
       '';
       packages.myVimPackage.start = with pkgs.vimPlugins; [
@@ -81,6 +81,10 @@ let
         lazygit-nvim
         # intro screen
         alpha-nvim
+        # file system in a buffer
+        oil-nvim
+        # project-wide diagnostics
+        trouble-nvim
       ] ++ fullPlugins;
     };
   };
