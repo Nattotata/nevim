@@ -3,21 +3,21 @@ default:
 
 # Builds and run the raspberry pi variant
 run_minimal:
-    nix run .#minimalist
+    nix run .#pi
 
-# Builds and runs the full variant
+# Builds and runs the desktop variant
 run_full:
-    nix run .#full
+    nix run .#desktop
 
 # Build raspberry pi variant
 # and symlink to ./result
 build_minimal:
-    nix build .#minimalist
+    nix build .#pi
 
-# Build full variant
+# Build desktop variant
 # and symlink to ./result
 build_full:
-    nix build .#full
+    nix build .#desktop
 
 # Check the nix files
 check:

@@ -9,5 +9,6 @@
 
 There are two variants of nevim:
 
-* minimalist: no lsps, intended for raspberry pi
-* full: lsps for web dev, and python. Is a sort of one-size-fits-all for my use cases.
+* pi: no lsps, intended for raspberry pi
+* desktop: lsps for web dev, and python.
+  Is a sort of one-size-fits-all for my use cases.

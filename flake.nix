@@ -30,9 +30,9 @@
             };
         in
         {
-          minimalist = mkNevim "minimalist";
-          full = mkNevim "full";
-          default = mkNevim "full";
+          pi = mkNevim "pi";
+          desktop = mkNevim "desktop";
+          default = mkNevim "desktop";
         }
       );
     };
