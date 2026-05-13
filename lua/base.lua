@@ -203,7 +203,7 @@ if status_wk and status_fzf then
         {
             "<leader>cf",
             function()
-                require("cnform").format({ async = true, lsp_fallback = true })
+                require("conform").format({ async = true, lsp_fallback = true })
             end,
             desc = "Format Document",
         },
