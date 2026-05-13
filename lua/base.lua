@@ -199,6 +199,7 @@ if status_wk and status_fzf then
         -- code
         { "<leader>c", group = "Code" },
         { "<leader>co", "<CMD>Oil<CR>", desc = "Oil (Edit Filesystem)" },
+        { "<leader>cu", vim.cmd.UndotreeToggle, desc = "UndoTree (Time Travel)" },
         {
             "<leader>cf",
             function()
@@ -514,3 +515,17 @@ local status_trouble, trouble = pcall(require, "trouble")
 if status_trouble then
     trouble.setup()
 end
+
+-- Save undo history to a file so it persists across restarts
+local undodir = vim.fn.expand("~/.local/share/nvim/undo")
+
+if vim.fn.isdirectory(undodir) == 0 then
+    vim.fn.mkdir(undodir, "p")
+end
+
+vim.opt.undodir = undodir
+vim.opt.undofile = true
+
+-- Configure UndoTree UI
+vim.g.undotree_WindowLayout = 2 -- Shows the tree on the left, diff on bottom
+vim.g.undotree_SetFocusWhenToggle = 1 -- Jump to the tree automatically

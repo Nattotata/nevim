@@ -85,6 +85,8 @@ let
         oil-nvim
         # project-wide diagnostics
         trouble-nvim
+        # non-linear undo
+        undotree
       ] ++ fullPlugins;
     };
   };
