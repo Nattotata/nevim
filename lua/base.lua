@@ -503,3 +503,14 @@ vim.api.nvim_create_autocmd("ColorScheme", {
 
 -- Escape terminal mode easily with Esc (instead of the default Ctrl-\ Ctrl-N)
 vim.keymap.set("t", "<Esc>", [[<C-\><C-n>]], { desc = "Exit Terminal Mode" })
+
+-- oil and trouble setup
+local status_oil, oil = pcall(require, "oil")
+if status_oil then
+    oil.setup()
+end
+
+local status_trouble, trouble = pcall(require, "trouble")
+if status_trouble then
+    trouble.setup()
+end
