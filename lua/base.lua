@@ -299,6 +299,11 @@ if status_wk and status_fzf then
             end,
             desc = "Toggle Format on Save",
         },
+
+        { "<leader>t", group = "terminal" },
+        { "<leader>tt", "<cmd>terminal<cr>i", desc = "Terminal (Full Buffer)" },
+        { "<leader>ts", "<cmd>split | terminal<cr>i", desc = "Terminal (Horizontal Split)" },
+        { "<leader>tv", "<cmd>vsplit | terminal<cr>i", desc = "Terminal (Vertical Split)" },
     })
 end
 
@@ -493,3 +498,8 @@ disable_italics()
 vim.api.nvim_create_autocmd("ColorScheme", {
     callback = disable_italics,
 })
+
+-- terminal qol
+
+-- Escape terminal mode easily with Esc (instead of the default Ctrl-\ Ctrl-N)
+vim.keymap.set("t", "<Esc>", [[<C-\><C-n>]], { desc = "Exit Terminal Mode" })
