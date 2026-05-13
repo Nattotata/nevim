@@ -301,22 +301,11 @@ if status_wk and status_fzf then
 end
 
 -- AUTO-COMMANDS
+-- Don't continue comments on new lines
 vim.api.nvim_create_autocmd("FileType", {
     pattern = "*",
     callback = function()
         vim.opt_local.formatoptions:remove({ "r", "o" })
-    end,
-})
-
-vim.api.nvim_create_autocmd("VimEnter", {
-    callback = function()
-        local path = vim.fn.expand("%:p")
-        if vim.fn.isdirectory(path) == 1 then
-            vim.cmd("bwipeout")
-            if status_fzf then
-                fzf.files({ cwd = path })
-            end
-        end
     end,
 })
 
