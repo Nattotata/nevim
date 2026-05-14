@@ -204,6 +204,35 @@ if status_wk and status_fzf then
         { "<leader>co", "<CMD>Oil<CR>", desc = "Oil (Edit Filesystem)" },
         { "<leader>cu", vim.cmd.UndotreeToggle, desc = "UndoTree (Time Travel)" },
         { "<leader>cc", "<cmd>vsplit | Oil<cr>", desc = "Commander (Dual-Pane Oil)" },
+
+        -- Path Operations
+        { "<leader>cp", group = "path" },
+        {
+            "<leader>cpp",
+            function()
+                print(vim.fn.expand("%:p"))
+            end,
+            desc = "Print Path (Full)",
+        },
+        {
+            "<leader>cpa",
+            function()
+                local path = vim.fn.expand("%:p")
+                vim.fn.setreg("+", path)
+                print("Copied: " .. path)
+            end,
+            desc = "Copy Absolute Path",
+        },
+        {
+            "<leader>cpr",
+            function()
+                local path = vim.fn.expand("%:.")
+                vim.fn.setreg("+", path)
+                print("Copied relative: " .. path)
+            end,
+            desc = "Copy Relative Path",
+        },
+        { "<leader>cpw", "<cmd>pwd<cr>", desc = "Print Working Directory" },
         {
             "<leader>cf",
             function()
