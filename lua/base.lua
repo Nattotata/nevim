@@ -98,6 +98,7 @@ end
 
 if status_wk and status_fzf then
     wk.add({
+
         -- git
         { "<leader>g", group = "Git" },
         { "<leader>gg", "<cmd>LazyGit<cr>", desc = "LazyGit (Floating)" },
@@ -108,6 +109,7 @@ if status_wk and status_fzf then
         { "<leader>gl", "<cmd>Gitsigns blame_line<cr>", desc = "Git Blame Line" },
         { "<leader>gd", "<cmd>Gitsigns diffthis<cr>", desc = "Git Diff" },
         { "<leader>e", "<cmd>Neotree toggle<cr>", desc = "Toggle Explorer" },
+
         -- Find/Search Group (FZF)
         { "<leader>f", group = "Files" },
         { "<leader>fk", "<cmd>FzfLua keymaps<cr>", desc = "Search Keymaps" },
@@ -139,6 +141,7 @@ if status_wk and status_fzf then
         { "<leader>w<Down>", "<cmd>resize -2<cr>", desc = "Decrease Height" },
         { "<leader>w<Left>", "<cmd>vertical resize -2<cr>", desc = "Decrease Width" },
         { "<leader>w<Right>", "<cmd>vertical resize +2<cr>", desc = "Increase Width" },
+
         -- diagnostics
         { "<leader>x", group = "Errors and Diagnostics" },
         {
@@ -185,7 +188,6 @@ if status_wk and status_fzf then
             end,
             desc = "Open Conform Log",
         },
-        -- Adding a shortcut for the UI info window too
         { "<leader>xi", "<cmd>ConformInfo<cr>", desc = "Conform System Info" },
         {
             "<leader>xX",
@@ -196,10 +198,12 @@ if status_wk and status_fzf then
             end,
             desc = "Clear Conform Log",
         },
+
         -- code
         { "<leader>c", group = "Code" },
         { "<leader>co", "<CMD>Oil<CR>", desc = "Oil (Edit Filesystem)" },
         { "<leader>cu", vim.cmd.UndotreeToggle, desc = "UndoTree (Time Travel)" },
+        { "<leader>cc", "<cmd>vsplit | Oil<cr>", desc = "Commander (Dual-Pane Oil)" },
         {
             "<leader>cf",
             function()
@@ -215,6 +219,7 @@ if status_wk and status_fzf then
             end,
             desc = "Toggle Autosave",
         },
+
         -- UI group
         { "<leader>u", group = "UI" },
         {
@@ -237,8 +242,6 @@ if status_wk and status_fzf then
             end,
             desc = "Toggle Spelling",
         },
-
-        -- Relative Numbers
         {
             "<leader>un",
             function()
@@ -247,8 +250,6 @@ if status_wk and status_fzf then
             end,
             desc = "Toggle Relative Numbers",
         },
-
-        -- Diagnostics
         {
             "<leader>ud",
             function()
@@ -258,8 +259,6 @@ if status_wk and status_fzf then
             end,
             desc = "Toggle Diagnostics",
         },
-
-        -- Git Signs (Using gitsigns internal state)
         {
             "<leader>ug",
             function()
@@ -269,8 +268,6 @@ if status_wk and status_fzf then
             end,
             desc = "Toggle Git Signs",
         },
-
-        -- Markdown Rendering
         {
             "<leader>um",
             function()
@@ -279,8 +276,6 @@ if status_wk and status_fzf then
             end,
             desc = "Toggle Markdown Render",
         },
-
-        -- Twilight (Dimming)
         {
             "<leader>ut",
             function()
@@ -290,8 +285,6 @@ if status_wk and status_fzf then
             end,
             desc = "Toggle Twilight",
         },
-
-        -- Format on Save (Note: logic is inverted based on your variable name)
         {
             "<leader>uf",
             function()
@@ -301,6 +294,7 @@ if status_wk and status_fzf then
             desc = "Toggle Format on Save",
         },
 
+        -- terminal
         { "<leader>t", group = "terminal" },
         { "<leader>tt", "<cmd>terminal<cr>i", desc = "Terminal (Full Buffer)" },
         { "<leader>ts", "<cmd>split | terminal<cr>i", desc = "Terminal (Horizontal Split)" },
