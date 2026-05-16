@@ -121,6 +121,7 @@ if status_wk and status_fzf then
         { "<leader>R", "<cmd>registers<cr>", desc = "Registers" },
         { "<leader>q", group = "Quit" },
         { "<leader>qq", "<cmd>qa<cr>", desc = "Quit All" },
+
         -- Window Management Group
         { "<leader>w", group = "Windows" },
         { "<leader>wv", "<cmd>vsplit<cr>", desc = "Split Vertical" },
@@ -242,6 +243,18 @@ if status_wk and status_fzf then
 
         -- UI group
         { "<leader>u", group = "UI" },
+        {
+            "<leader>ua",
+            function()
+                require("smear_cursor").toggle()
+                local is_enabled = require("smear_cursor").enabled
+                local status = is_enabled and "ON" or "OFF"
+                vim.notify("Smear Cursor turned " .. status, vim.log.levels.INFO, {
+                    title = "Smear Cursor",
+                })
+            end,
+            desc = "Toggle Smear Cursor",
+        },
         {
             "<leader>uw",
             function()
@@ -543,3 +556,15 @@ vim.opt.undofile = true
 -- Configure UndoTree UI
 vim.g.undotree_WindowLayout = 2 -- Shows the tree on the left, diff on bottom
 vim.g.undotree_SetFocusWhenToggle = 1 -- Jump to the tree automatically
+
+-- Highlight yanked text
+vim.api.nvim_create_autocmd("TextYankPost", {
+    desc = "Highlight text on yank",
+    group = vim.api.nvim_create_augroup("YankHighlight", { clear = true }),
+    callback = function()
+        vim.highlight.on_yank({
+            higroup = "IncSearch", -- The highlight color group
+            timeout = 150, -- Animation duration in milliseconds
+        })
+    end,
+})

@@ -45,6 +45,7 @@ let
           just
           mermaid
           yaml
+          python
         ]))
         # Which key does what, allows custom mapping for hints
         which-key-nvim
@@ -87,6 +88,8 @@ let
         trouble-nvim
         # non-linear undo
         undotree
+        # cursor animations
+        smear-cursor-nvim
       ] ++ fullPlugins;
     };
   };
