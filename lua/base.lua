@@ -50,15 +50,6 @@ if status_lualine then
     lualine.setup({ options = { theme = "gruvbox" } })
 end
 
--- NEO-TREE
-local status_nt, nt = pcall(require, "neo-tree")
-if status_nt then
-    nt.setup({
-        close_if_last_window = true,
-        filesystem = { filtered_items = { visible = true, hide_dotfiles = false } },
-    })
-end
-
 -- NAVIGATION
 vim.keymap.set("n", "H", "<cmd>bprevious<cr>")
 vim.keymap.set("n", "L", "<cmd>bnext<cr>")
