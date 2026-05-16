@@ -54,18 +54,3 @@ if status_image then
         window_overlap_clear_enabled = true,
     })
 end
-
--- treesitter is syntax highlighting
-
--- local status_ts, _ = pcall(require, "nvim-treesitter")
--- if status_ts then
--- 	-- Recent nvim-treesitter doesn't need .setup() for basic highlighting
--- 	-- if the parsers are managed by Nix. But if you want to be sure:
--- 	local configs = require("nvim-treesitter.configs")
--- 	if type(configs.setup) == "function" then
--- 		configs.setup({
--- 			highlight = { enable = true, additional_vim_regex_highlighting = false },
--- 			indent = { enable = true },
--- 		})
--- 	end
--- end

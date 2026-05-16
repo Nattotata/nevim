@@ -568,3 +568,15 @@ vim.api.nvim_create_autocmd("TextYankPost", {
         })
     end,
 })
+
+-- treesitter is syntax highlighting
+local status_ts, configs = pcall(require, "nvim-treesitter.configs")
+if status_ts then
+    configs.setup({
+        highlight = {
+            enable = true,
+            additional_vim_regex_highlighting = false,
+        },
+        indent = { enable = true },
+    })
+end
