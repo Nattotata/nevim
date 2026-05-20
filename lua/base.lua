@@ -23,17 +23,35 @@ vim.opt.wrap = false
 
 -- AUTO-SAVE LOGIC
 vim.g.autosave_enabled = true
-
 local autosave_group = vim.api.nvim_create_augroup("AutosaveGroup", { clear = true })
-
-vim.api.nvim_create_autocmd({ "InsertLeave", "TextChanged" }, {
+vim.api.nvim_create_autocmd({ "InsertLeave", "FocusLost" }, {
     group = autosave_group,
     callback = function()
         if vim.g.autosave_enabled and vim.bo.modified and vim.fn.empty(vim.fn.expand("%:t")) ~= 1 then
-            vim.cmd("silent! write")
+            -- We check if we're in a regular file to avoid saving terminal/special buffers
+            if vim.bo.buftype == "" then
+                vim.cmd("silent! write")
+            end
         end
     end,
 })
+
+-- Redirect terminal output to a scratch buffer
+vim.api.nvim_create_user_command("Redir", function(ctx)
+    local lines = vim.split(vim.api.nvim_exec2(ctx.args, { output = true }).output, "\n")
+    local buf = vim.api.nvim_get_current_buf()
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+    vim.opt_local.buftype = "nofile"
+    vim.opt_local.bufhidden = "wipe"
+end, { nargs = "+", complete = "command" })
+
+-- This might help with syntax highlighting
+vim.filetype.add({
+    extension = {
+        svelte = "svelte",
+    },
+})
+vim.treesitter.language.register("svelte", "svelte")
 
 -- WINDOW MANAGEMENT (Standard Neovim)
 vim.keymap.set("n", "<leader>wv", "<cmd>vsplit<cr>", { desc = "Split Vertical" })
@@ -65,275 +83,6 @@ end, { desc = "Open Errors in Quickfix List" })
 -- WHICH-KEY & FZF
 local status_wk, wk = pcall(require, "which-key")
 local status_fzf, fzf = pcall(require, "fzf-lua")
-
-if status_wk then
-    wk.setup({
-        preset = "modern",
-        win = {
-            border = "rounded",
-            -- We'll use col/row or simply let it default to bottom
-            -- width can be a decimal (0.9 = 90%)
-            width = 0.9,
-            height = { min = 4, max = 25 },
-            -- This is the crucial part for your transparency
-            wo = {
-                winblend = 15,
-            },
-        },
-        layout = {
-            spacing = 6,
-            align = "center",
-        },
-    })
-end
-
-if status_wk and status_fzf then
-    wk.add({
-
-        -- git
-        { "<leader>g", group = "Git" },
-        { "<leader>gg", "<cmd>LazyGit<cr>", desc = "LazyGit (Floating)" },
-        { "<leader>gl", "<cmd>LazyGitFilterCurrentFile<cr>", desc = "LazyGit Current File Log" },
-        { "<leader>gs", "<cmd>FzfLua git_status<cr>", desc = "Git Status (FZF)" },
-        { "<leader>gb", "<cmd>FzfLua git_branches<cr>", desc = "Git Branches" },
-        { "<leader>gc", "<cmd>FzfLua git_commits<cr>", desc = "Git Commits" },
-        { "<leader>gl", "<cmd>Gitsigns blame_line<cr>", desc = "Git Blame Line" },
-        { "<leader>gd", "<cmd>Gitsigns diffthis<cr>", desc = "Git Diff" },
-        { "<leader>e", "<cmd>Neotree toggle<cr>", desc = "Toggle Explorer" },
-
-        -- Find/Search Group (FZF)
-        { "<leader>f", group = "Files" },
-        { "<leader>fk", "<cmd>FzfLua keymaps<cr>", desc = "Search Keymaps" },
-        { "<leader>fg", "<cmd>FzfLua live_grep<cr>", desc = "Live Grep" },
-        { "<leader>fb", "<cmd>FzfLua buffers<cr>", desc = "Search Buffers" },
-        {
-            "<leader>ff",
-            function()
-                fzf.files({ fd_opts = "--type f --hidden --exclude .git" })
-            end,
-            desc = "Find Files",
-        },
-        { "<leader>/", fzf.live_grep, desc = "Grep in Project" },
-        { "<leader>b", group = "Buffers" },
-        { "<leader>bb", fzf.buffers, desc = "Switch Buffer" },
-        { "<leader>bd", "<cmd>bdelete<cr>", desc = "Delete Buffer" },
-        { "<leader>p", '"0p', desc = "Paste Last Yank" },
-        { "<leader>R", "<cmd>registers<cr>", desc = "Registers" },
-        { "<leader>q", group = "Quit" },
-        { "<leader>qq", "<cmd>qa<cr>", desc = "Quit All" },
-
-        -- Window Management Group
-        { "<leader>w", group = "Windows" },
-        { "<leader>wv", "<cmd>vsplit<cr>", desc = "Split Vertical" },
-        { "<leader>wh", "<cmd>split<cr>", desc = "Split Horizontal" },
-        { "<leader>wc", "<cmd>close<cr>", desc = "Close Window" },
-        { "<leader>wo", "<cmd>only<cr>", desc = "Close Others" },
-        -- Resizing (using arrows or hjkl)
-        { "<leader>w<Up>", "<cmd>resize +2<cr>", desc = "Increase Height" },
-        { "<leader>w<Down>", "<cmd>resize -2<cr>", desc = "Decrease Height" },
-        { "<leader>w<Left>", "<cmd>vertical resize -2<cr>", desc = "Decrease Width" },
-        { "<leader>w<Right>", "<cmd>vertical resize +2<cr>", desc = "Increase Width" },
-
-        -- diagnostics
-        { "<leader>x", group = "Errors and Diagnostics" },
-        {
-            "<leader>xx",
-            function()
-                vim.diagnostic.setqflist()
-            end,
-            desc = "Open Errors in Quickfix",
-        },
-        { "<leader>xm", "<cmd>tab messages<cr>", desc = "View Message Log (Full Page)" },
-        {
-            "<leader>xl",
-            function()
-                fzf.diagnostics_workspace()
-            end,
-            desc = "Search All Workspace Errors (FZF)",
-        },
-        {
-            "<leader>xM",
-            function()
-                -- This captures the output of :messages and puts it in a new buffer
-                local messages = vim.fn.execute("messages")
-                vim.cmd("vsplit | enew")
-                local buf = vim.api.nvim_get_current_buf()
-                vim.api.nvim_buf_set_lines(buf, 0, -1, false, vim.split(messages, "\n"))
-                vim.bo[buf].modified = false
-                vim.bo[buf].buftype = "nofile"
-                vim.cmd("normal! G") -- Scroll to the latest messages
-            end,
-            desc = "Messages in Split",
-        },
-        { "<leader>xc", "<cmd>cclose<cr>", desc = "Close Quickfix Window" },
-        { "<leader>xt", "<cmd>Trouble diagnostics toggle<cr>", desc = "Trouble (Project)" },
-        { "<leader>xT", "<cmd>Trouble diagnostics toggle filter.buf=0<cr>", desc = "Trouble (Buffer)" },
-        {
-            "<leader>xc",
-            function()
-                -- This opens the conform log in a new vertical split
-                vim.cmd("vsplit " .. vim.fn.stdpath("state") .. "/conform.log")
-                -- Set the filetype to 'log' for basic highlighting if available
-                vim.bo.filetype = "log"
-                -- Scroll to the bottom of the log immediately
-                vim.cmd("normal! G")
-            end,
-            desc = "Open Conform Log",
-        },
-        { "<leader>xi", "<cmd>ConformInfo<cr>", desc = "Conform System Info" },
-        {
-            "<leader>xX",
-            function()
-                local log_path = vim.fn.stdpath("state") .. "/conform.log"
-                os.remove(log_path)
-                print("Conform log cleared!")
-            end,
-            desc = "Clear Conform Log",
-        },
-
-        -- code
-        { "<leader>c", group = "Code" },
-        { "<leader>co", "<CMD>Oil<CR>", desc = "Oil (Edit Filesystem)" },
-        { "<leader>cu", vim.cmd.UndotreeToggle, desc = "UndoTree (Time Travel)" },
-        { "<leader>cc", "<cmd>vsplit | Oil<cr>", desc = "Commander (Dual-Pane Oil)" },
-
-        -- Path Operations
-        { "<leader>cp", group = "path" },
-        {
-            "<leader>cpp",
-            function()
-                print(vim.fn.expand("%:p"))
-            end,
-            desc = "Print Path (Full)",
-        },
-        {
-            "<leader>cpa",
-            function()
-                local path = vim.fn.expand("%:p")
-                vim.fn.setreg("+", path)
-                print("Copied: " .. path)
-            end,
-            desc = "Copy Absolute Path",
-        },
-        {
-            "<leader>cpr",
-            function()
-                local path = vim.fn.expand("%:.")
-                vim.fn.setreg("+", path)
-                print("Copied relative: " .. path)
-            end,
-            desc = "Copy Relative Path",
-        },
-        { "<leader>cpw", "<cmd>pwd<cr>", desc = "Print Working Directory" },
-        {
-            "<leader>cf",
-            function()
-                require("conform").format({ async = true, lsp_fallback = true })
-            end,
-            desc = "Format Document",
-        },
-        {
-            "<leader>cs",
-            function()
-                vim.g.autosave_enabled = not vim.g.autosave_enabled
-                print("Autosave: " .. (vim.g.autosave_enabled and "ON" or "OFF"))
-            end,
-            desc = "Toggle Autosave",
-        },
-
-        -- UI group
-        { "<leader>u", group = "UI" },
-        {
-            "<leader>ua",
-            function()
-                require("smear_cursor").toggle()
-                local is_enabled = require("smear_cursor").enabled
-                local status = is_enabled and "ON" or "OFF"
-                vim.notify("Smear Cursor turned " .. status, vim.log.levels.INFO, {
-                    title = "Smear Cursor",
-                })
-            end,
-            desc = "Toggle Smear Cursor",
-        },
-        {
-            "<leader>uw",
-            function()
-                vim.opt.wrap = not vim.opt.wrap:get()
-                if vim.opt.wrap:get() then
-                    print("Line wrap enabled")
-                else
-                    print("Line wrap disabled")
-                end
-            end,
-            desc = "Toggle Line Wrap",
-        },
-        {
-            "<leader>us",
-            function()
-                vim.opt.spell = not vim.opt.spell:get()
-                print("Spelling: " .. (vim.opt.spell:get() and "ON" or "OFF"))
-            end,
-            desc = "Toggle Spelling",
-        },
-        {
-            "<leader>un",
-            function()
-                vim.wo.relativenumber = not vim.wo.relativenumber
-                print("Relative Number: " .. (vim.wo.relativenumber and "ON" or "OFF"))
-            end,
-            desc = "Toggle Relative Numbers",
-        },
-        {
-            "<leader>ud",
-            function()
-                local enabled = not vim.diagnostic.is_enabled()
-                vim.diagnostic.enable(enabled)
-                print("Diagnostics: " .. (enabled and "ON" or "OFF"))
-            end,
-            desc = "Toggle Diagnostics",
-        },
-        {
-            "<leader>ug",
-            function()
-                require("gitsigns").toggle_signs()
-                -- GitSigns doesn't return state easily, but we can notify the trigger
-                print("Toggle Git Signs executed")
-            end,
-            desc = "Toggle Git Signs",
-        },
-        {
-            "<leader>um",
-            function()
-                vim.cmd("RenderMarkdown toggle")
-                print("Markdown Render Toggled")
-            end,
-            desc = "Toggle Markdown Render",
-        },
-        {
-            "<leader>ut",
-            function()
-                vim.cmd("Twilight")
-                -- Check if global variable or buffer variable exists for Twilight state
-                print("Twilight Toggled")
-            end,
-            desc = "Toggle Twilight",
-        },
-        {
-            "<leader>uf",
-            function()
-                vim.g.disable_autoformat = not vim.g.disable_autoformat
-                print("Autoformat on Save: " .. (vim.g.disable_autoformat and "OFF" or "ON"))
-            end,
-            desc = "Toggle Format on Save",
-        },
-
-        -- terminal
-        { "<leader>t", group = "terminal" },
-        { "<leader>tt", "<cmd>terminal<cr>i", desc = "Terminal (Full Buffer)" },
-        { "<leader>ts", "<cmd>split | terminal<cr>i", desc = "Terminal (Horizontal Split)" },
-        { "<leader>tv", "<cmd>vsplit | terminal<cr>i", desc = "Terminal (Vertical Split)" },
-    })
-end
 
 -- AUTO-COMMANDS
 -- Don't continue comments on new lines
@@ -573,10 +322,307 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 local status_ts, configs = pcall(require, "nvim-treesitter.configs")
 if status_ts then
     configs.setup({
+        ensure_installed = {},
+        auto_install = false,
         highlight = {
             enable = true,
             additional_vim_regex_highlighting = false,
         },
         indent = { enable = true },
+    })
+    -- Global attachment fallback for Nix
+    vim.api.nvim_create_autocmd("FileType", {
+        callback = function()
+            local buf = vim.api.nvim_get_current_buf()
+            local lang = vim.treesitter.language.get_lang(vim.bo.filetype)
+            if lang and pcall(vim.treesitter.get_parser, buf, lang) then
+                vim.treesitter.start(buf, lang)
+            end
+        end,
+    })
+end
+vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile", "FileType" }, {
+    callback = function()
+        local buf = vim.api.nvim_get_current_buf()
+        -- Check if we have a parser for this filetype
+        local lang = vim.treesitter.language.get_lang(vim.bo.filetype)
+        if lang then
+            pcall(vim.treesitter.start, buf, lang)
+        end
+    end,
+})
+if status_wk then
+    wk.setup({
+        preset = "modern",
+        win = {
+            border = "rounded",
+            -- We'll use col/row or simply let it default to bottom
+            -- width can be a decimal (0.9 = 90%)
+            width = 0.9,
+            height = { min = 4, max = 25 },
+            -- This is the crucial part for your transparency
+            wo = {
+                winblend = 15,
+            },
+        },
+        layout = {
+            spacing = 6,
+            align = "center",
+        },
+    })
+end
+
+if status_wk and status_fzf then
+    wk.add({
+
+        -- git
+        { "<leader>g", group = "Git" },
+        { "<leader>gg", "<cmd>LazyGit<cr>", desc = "LazyGit (Floating)" },
+        { "<leader>gl", "<cmd>LazyGitFilterCurrentFile<cr>", desc = "LazyGit Current File Log" },
+        { "<leader>gs", "<cmd>FzfLua git_status<cr>", desc = "Git Status (FZF)" },
+        { "<leader>gb", "<cmd>FzfLua git_branches<cr>", desc = "Git Branches" },
+        { "<leader>gc", "<cmd>FzfLua git_commits<cr>", desc = "Git Commits" },
+        { "<leader>gl", "<cmd>Gitsigns blame_line<cr>", desc = "Git Blame Line" },
+        { "<leader>gd", "<cmd>Gitsigns diffthis<cr>", desc = "Git Diff" },
+        { "<leader>e", "<cmd>Neotree toggle<cr>", desc = "Toggle Explorer" },
+
+        -- Find/Search Group (FZF)
+        { "<leader>f", group = "Files" },
+        { "<leader>fk", "<cmd>FzfLua keymaps<cr>", desc = "Search Keymaps" },
+        { "<leader>fg", "<cmd>FzfLua live_grep<cr>", desc = "Live Grep" },
+        { "<leader>fb", "<cmd>FzfLua buffers<cr>", desc = "Search Buffers" },
+        {
+            "<leader>ff",
+            function()
+                fzf.files({ fd_opts = "--type f --hidden --exclude .git" })
+            end,
+            desc = "Find Files",
+        },
+        { "<leader>/", fzf.live_grep, desc = "Grep in Project" },
+        { "<leader>b", group = "Buffers" },
+        { "<leader>bb", fzf.buffers, desc = "Switch Buffer" },
+        { "<leader>bd", "<cmd>bdelete<cr>", desc = "Delete Buffer" },
+        { "<leader>p", '"0p', desc = "Paste Last Yank" },
+        { "<leader>R", "<cmd>registers<cr>", desc = "Registers" },
+        { "<leader>q", group = "Quit" },
+        { "<leader>qq", "<cmd>qa<cr>", desc = "Quit All" },
+
+        -- Window Management Group
+        { "<leader>w", group = "Windows" },
+        { "<leader>wv", "<cmd>vsplit<cr>", desc = "Split Vertical" },
+        { "<leader>wh", "<cmd>split<cr>", desc = "Split Horizontal" },
+        { "<leader>wc", "<cmd>close<cr>", desc = "Close Window" },
+        { "<leader>wo", "<cmd>only<cr>", desc = "Close Others" },
+        -- Resizing (using arrows or hjkl)
+        { "<leader>w<Up>", "<cmd>resize +2<cr>", desc = "Increase Height" },
+        { "<leader>w<Down>", "<cmd>resize -2<cr>", desc = "Decrease Height" },
+        { "<leader>w<Left>", "<cmd>vertical resize -2<cr>", desc = "Decrease Width" },
+        { "<leader>w<Right>", "<cmd>vertical resize +2<cr>", desc = "Increase Width" },
+
+        -- diagnostics
+        { "<leader>x", group = "Errors and Diagnostics" },
+        {
+            "<leader>xx",
+            function()
+                vim.diagnostic.setqflist()
+            end,
+            desc = "Open Errors in Quickfix",
+        },
+        { "<leader>xm", "<cmd>tab messages<cr>", desc = "View Message Log (Full Page)" },
+        {
+            "<leader>xi",
+            function()
+                print(vim.inspect(vim.inspect_pos()))
+            end,
+            { desc = "Inspect under cursor" },
+        },
+        {
+            "<leader>xl",
+            function()
+                fzf.diagnostics_workspace()
+            end,
+            desc = "Search All Workspace Errors (FZF)",
+        },
+        {
+            "<leader>xM",
+            function()
+                -- This captures the output of :messages and puts it in a new buffer
+                local messages = vim.fn.execute("messages")
+                vim.cmd("vsplit | enew")
+                local buf = vim.api.nvim_get_current_buf()
+                vim.api.nvim_buf_set_lines(buf, 0, -1, false, vim.split(messages, "\n"))
+                vim.bo[buf].modified = false
+                vim.bo[buf].buftype = "nofile"
+                vim.cmd("normal! G") -- Scroll to the latest messages
+            end,
+            desc = "Messages in Split",
+        },
+        { "<leader>xc", "<cmd>cclose<cr>", desc = "Close Quickfix Window" },
+        { "<leader>xt", "<cmd>Trouble diagnostics toggle<cr>", desc = "Trouble (Project)" },
+        { "<leader>xT", "<cmd>Trouble diagnostics toggle filter.buf=0<cr>", desc = "Trouble (Buffer)" },
+        {
+            "<leader>xc",
+            function()
+                -- This opens the conform log in a new vertical split
+                vim.cmd("vsplit " .. vim.fn.stdpath("state") .. "/conform.log")
+                -- Set the filetype to 'log' for basic highlighting if available
+                vim.bo.filetype = "log"
+                -- Scroll to the bottom of the log immediately
+                vim.cmd("normal! G")
+            end,
+            desc = "Open Conform Log",
+        },
+        { "<leader>xi", "<cmd>ConformInfo<cr>", desc = "Conform System Info" },
+        {
+            "<leader>xX",
+            function()
+                local log_path = vim.fn.stdpath("state") .. "/conform.log"
+                os.remove(log_path)
+                print("Conform log cleared!")
+            end,
+            desc = "Clear Conform Log",
+        },
+
+        -- code
+        { "<leader>c", group = "Code" },
+        { "<leader>co", "<CMD>Oil<CR>", desc = "Oil (Edit Filesystem)" },
+        { "<leader>cu", vim.cmd.UndotreeToggle, desc = "UndoTree (Time Travel)" },
+        { "<leader>cc", "<cmd>vsplit | Oil<cr>", desc = "Commander (Dual-Pane Oil)" },
+
+        -- Path Operations
+        { "<leader>cp", group = "path" },
+        {
+            "<leader>cpp",
+            function()
+                print(vim.fn.expand("%:p"))
+            end,
+            desc = "Print Path (Full)",
+        },
+        {
+            "<leader>cpa",
+            function()
+                local path = vim.fn.expand("%:p")
+                vim.fn.setreg("+", path)
+                print("Copied: " .. path)
+            end,
+            desc = "Copy Absolute Path",
+        },
+        {
+            "<leader>cpr",
+            function()
+                local path = vim.fn.expand("%:.")
+                vim.fn.setreg("+", path)
+                print("Copied relative: " .. path)
+            end,
+            desc = "Copy Relative Path",
+        },
+        { "<leader>cpw", "<cmd>pwd<cr>", desc = "Print Working Directory" },
+        {
+            "<leader>cf",
+            function()
+                require("conform").format({ async = true, lsp_fallback = true })
+            end,
+            desc = "Format Document",
+        },
+        {
+            "<leader>cs",
+            function()
+                vim.g.autosave_enabled = not vim.g.autosave_enabled
+                print("Autosave: " .. (vim.g.autosave_enabled and "ON" or "OFF"))
+            end,
+            desc = "Toggle Autosave",
+        },
+
+        -- UI group
+        { "<leader>u", group = "UI" },
+        {
+            "<leader>ua",
+            function()
+                require("smear_cursor").toggle()
+                local is_enabled = require("smear_cursor").enabled
+                local status = is_enabled and "ON" or "OFF"
+                vim.notify("Smear Cursor turned " .. status, vim.log.levels.INFO, {
+                    title = "Smear Cursor",
+                })
+            end,
+            desc = "Toggle Smear Cursor",
+        },
+        {
+            "<leader>uw",
+            function()
+                vim.opt.wrap = not vim.opt.wrap:get()
+                if vim.opt.wrap:get() then
+                    print("Line wrap enabled")
+                else
+                    print("Line wrap disabled")
+                end
+            end,
+            desc = "Toggle Line Wrap",
+        },
+        {
+            "<leader>us",
+            function()
+                vim.opt.spell = not vim.opt.spell:get()
+                print("Spelling: " .. (vim.opt.spell:get() and "ON" or "OFF"))
+            end,
+            desc = "Toggle Spelling",
+        },
+        {
+            "<leader>un",
+            function()
+                vim.wo.relativenumber = not vim.wo.relativenumber
+                print("Relative Number: " .. (vim.wo.relativenumber and "ON" or "OFF"))
+            end,
+            desc = "Toggle Relative Numbers",
+        },
+        {
+            "<leader>ud",
+            function()
+                local enabled = not vim.diagnostic.is_enabled()
+                vim.diagnostic.enable(enabled)
+                print("Diagnostics: " .. (enabled and "ON" or "OFF"))
+            end,
+            desc = "Toggle Diagnostics",
+        },
+        {
+            "<leader>ug",
+            function()
+                require("gitsigns").toggle_signs()
+                -- GitSigns doesn't return state easily, but we can notify the trigger
+                print("Toggle Git Signs executed")
+            end,
+            desc = "Toggle Git Signs",
+        },
+        {
+            "<leader>um",
+            function()
+                vim.cmd("RenderMarkdown toggle")
+                print("Markdown Render Toggled")
+            end,
+            desc = "Toggle Markdown Render",
+        },
+        {
+            "<leader>ut",
+            function()
+                vim.cmd("Twilight")
+                -- Check if global variable or buffer variable exists for Twilight state
+                print("Twilight Toggled")
+            end,
+            desc = "Toggle Twilight",
+        },
+        {
+            "<leader>uf",
+            function()
+                vim.g.disable_autoformat = not vim.g.disable_autoformat
+                print("Autoformat on Save: " .. (vim.g.disable_autoformat and "OFF" or "ON"))
+            end,
+            desc = "Toggle Format on Save",
+        },
+
+        -- terminal
+        { "<leader>t", group = "terminal" },
+        { "<leader>tt", "<cmd>terminal<cr>i", desc = "Terminal (Full Buffer)" },
+        { "<leader>ts", "<cmd>split | terminal<cr>i", desc = "Terminal (Horizontal Split)" },
+        { "<leader>tv", "<cmd>vsplit | terminal<cr>i", desc = "Terminal (Vertical Split)" },
     })
 end
