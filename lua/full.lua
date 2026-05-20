@@ -54,3 +54,24 @@ if status_image then
         window_overlap_clear_enabled = true,
     })
 end
+
+-- llm integration
+local provider = os.getenv("LLM_PROVIDER") or "google"
+local model = os.getenv("LLM_MODEL") or "gemini-2.0-flash"
+
+require("sllm").setup({
+    provider = provider,
+    model = model,
+    endpoint = os.getenv("OPENAI_API_BASE"),
+    default_mode = "sllm_chat",
+    window_type = "vertical",
+    reset_ctx_each_prompt = false,
+    on_start_new_chat = true,
+    chain_limit = 0,
+    keymaps = {
+        complete = false,
+    },
+    ui = {
+        show_usage = true,
+    },
+})

@@ -1,6 +1,17 @@
-{ pkgs, profile ? "desktop" }:
+{ pkgs, profile ? "desktop", sllm-src }:
 
 let
+  sllm-plugin = pkgs.vimUtils.buildVimPlugin
+    {
+      name = "sllm-nvim";
+      src = sllm-src;
+      # installPhase = ''
+      #   mkdir -p $out
+      #   cp -r ./* $out/
+      # '';
+      # dontUnpack = true;
+      # unpackPhase = "cp -a ${sllm-src} . && chmod -R +w .";
+    };
   baseLua = builtins.readFile ./lua/base.lua;
   fullLua = if profile == "desktop" then builtins.readFile ./lua/full.lua else "";
 
@@ -14,6 +25,7 @@ let
   ] else [ ];
 
   fullPlugins = with pkgs.vimPlugins; if profile == "desktop" then [
+    sllm-plugin
   ] else [ ];
 
   nevim = pkgs.neovim.override {
@@ -92,6 +104,7 @@ let
         smear-cursor-nvim
       ] ++ fullPlugins;
     };
+    extraMakeWrapperArgs = "--prefix PATH : ${pkgs.lib.makeBinPath [ pkgs.llm pkgs.ripgrep pkgs.fd pkgs.fzf pkgs.git ]}";
   };
 in
 {
@@ -108,6 +121,7 @@ in
     pkgs.stylua
     pkgs.prettier
     pkgs.nixpkgs-fmt
+    pkgs.llm
   ] ++ fullPackages;
 
   # Reference to the actual nvim binary for the shell script
