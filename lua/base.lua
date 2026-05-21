@@ -1,3 +1,10 @@
+-- use fzf as default for selection
+local fzf = require("fzf-lua")
+vim.ui.select = function(items, opts, on_choice)
+    fzf.register_ui_select(function(_, _, _) end)
+    fzf.ui_select(items, opts, on_choice)
+end
+
 -- SET LEADER KEY
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "

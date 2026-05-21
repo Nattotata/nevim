@@ -102,9 +102,11 @@ let
         undotree
         # cursor animations
         smear-cursor-nvim
+        # env file parsing
+        direnv-vim
       ] ++ fullPlugins;
     };
-    extraMakeWrapperArgs = "--prefix PATH : ${pkgs.lib.makeBinPath [ pkgs.llm pkgs.ripgrep pkgs.fd pkgs.fzf pkgs.git ]}";
+    extraMakeWrapperArgs = "--prefix PATH : ${pkgs.lib.makeBinPath [ pkgs.llm pkgs.direnv pkgs.ripgrep pkgs.fd pkgs.fzf pkgs.git ]}";
   };
 in
 {

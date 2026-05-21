@@ -58,16 +58,21 @@ end
 -- llm integration
 local provider = os.getenv("LLM_PROVIDER") or "google"
 local model = os.getenv("LLM_MODEL") or "gemini-2.0-flash"
+local endpoint = os.getenv("OPENAI_API_BASE")
 
+-- - model_id: ds-flash
+--   model_name: deepseek-v4-flash
+--   api_base: "https://api.deepseek.com/v1"
+--   api_key_name: deepseek
 require("sllm").setup({
-    provider = provider,
-    model = model,
-    endpoint = os.getenv("OPENAI_API_BASE"),
-    default_mode = "sllm_chat",
+    default_model = "ds-flash",
+    default_mode = "engineer", -- template
+    pick_func = require("fzf-lua").ui_select,
+    online_enabled = false,
     window_type = "vertical",
     reset_ctx_each_prompt = false,
-    on_start_new_chat = true,
-    chain_limit = 0,
+    on_start_new_chat = false,
+    chain_limit = 200,
     keymaps = {
         complete = false,
     },
