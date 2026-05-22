@@ -1,10 +1,3 @@
--- use fzf as default for selection
-local fzf = require("fzf-lua")
-vim.ui.select = function(items, opts, on_choice)
-    fzf.register_ui_select(function(_, _, _) end)
-    fzf.ui_select(items, opts, on_choice)
-end
-
 -- SET LEADER KEY
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
@@ -90,6 +83,10 @@ end, { desc = "Open Errors in Quickfix List" })
 -- WHICH-KEY & FZF
 local status_wk, wk = pcall(require, "which-key")
 local status_fzf, fzf = pcall(require, "fzf-lua")
+if status_fzf then
+    fzf.setup({ "fzf-native" })
+    fzf.register_ui_select()
+end
 
 -- AUTO-COMMANDS
 -- Don't continue comments on new lines
@@ -405,6 +402,7 @@ if status_wk and status_fzf then
             end,
             desc = "Find Files",
         },
+        { "<leader>fa", "<cmd>FzfLua global<cr>", desc = "FzfLua global command" },
         { "<leader>/", fzf.live_grep, desc = "Grep in Project" },
         { "<leader>b", group = "Buffers" },
         { "<leader>bb", fzf.buffers, desc = "Switch Buffer" },
