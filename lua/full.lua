@@ -1,10 +1,24 @@
 local function setup_server(server_name, opts)
-    -- Check for the new 0.11+ Core API first
+    opts = opts or {}
+
+    -- Ensure root_markers exist so the native LSP knows when to attach
+    -- Using a standard set of project indicators
+    if not opts.root_markers then
+        opts.root_markers =
+            { "package.json", "tsconfig.json", "jsconfig.json", ".git", "svelte.config.js", "flake.nix" }
+    end
+
     if vim.lsp.config then
-        vim.lsp.config(server_name, opts or {})
+        -- 1. Register the config
+        vim.lsp.config(server_name, opts)
+        -- 2. Enable the server (This replaces lspconfig's .setup() auto-start)
+        vim.lsp.enable(server_name)
     else
-        -- Fallback for the old nvim-lspconfig plugin
-        require("lspconfig")[server_name].setup(opts or {})
+        -- Fallback for lspconfig plugin if 0.11 features aren't present
+        local status, lspconfig = pcall(require, "lspconfig")
+        if status then
+            lspconfig[server_name].setup(opts)
+        end
     end
 end
 -- 1. TYPESCRIPT & JAVASCRIPT
