@@ -376,9 +376,21 @@ if status_wk then
     })
 end
 
+local function theme_picker()
+    local themes = { "gruvbox", "catppuccin", "tokyonight", "vague", "melange" }
+    require("fzf-lua").fzf_exec(themes, {
+        prompt = "Theme> ",
+        actions = {
+            ["default"] = function(selected)
+                vim.cmd.colorscheme(selected[1])
+                vim.notify("Theme: " .. selected[1], vim.log.levels.INFO)
+            end,
+        },
+    })
+end
+
 if status_wk and status_fzf then
     wk.add({
-
         -- git
         { "<leader>g", group = "Git" },
         { "<leader>gg", "<cmd>LazyGit<cr>", desc = "LazyGit (Floating)" },
@@ -540,6 +552,12 @@ if status_wk and status_fzf then
 
         -- UI group
         { "<leader>u", group = "UI" },
+
+        {
+            "<leader>uT",
+            theme_picker,
+            desc = "Pick a colorscheme",
+        },
         {
             "<leader>ua",
             function()

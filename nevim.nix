@@ -61,8 +61,14 @@ let
         ]))
         # Which key does what, allows custom mapping for hints
         which-key-nvim
-        # Theme
+        # Themes
         gruvbox-nvim
+        tokyonight-nvim
+        catppuccin-nvim
+        kanagawa-nvim
+        vague-nvim
+        melange-nvim
+        # status line
         lualine-nvim
         # fuzzy finder
         fzf-lua
@@ -85,6 +91,7 @@ let
         nvim-surround
         # + and - signs
         gitsigns-nvim
+        # kinda hybrid between raw md and rendered doc
         render-markdown-nvim
         # dimms everything expect current block
         twilight-nvim
