@@ -25,15 +25,15 @@
     "sllm-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1770578489,
-        "narHash": "sha256-asl20eDWpxIJXrVW+sj5a1HR1IgwHf9CQHp6FbmZGZg=",
-        "owner": "mozanunal",
+        "lastModified": 1779618061,
+        "narHash": "sha256-4nj48wYqi/BnWLJOCtqt/f0xywBOVlMQfVbwEkq1G9A=",
+        "owner": "Nattotata",
         "repo": "sllm.nvim",
-        "rev": "537feefb54384972f9661978ad0f2a960b297eb8",
+        "rev": "67dfc9914331166fb128b4b1a60f5bb945054f29",
         "type": "github"
       },
       "original": {
-        "owner": "mozanunal",
+        "owner": "Nattotata",
         "repo": "sllm.nvim",
         "type": "github"
       }

@@ -77,6 +77,11 @@ let
         # library for ui, dependency of neo tree
         nui-nvim
         mini-icons
+        # dependencies for sllm ui
+        mini-notify
+        mini-pick
+        # command line ui
+        dressing-nvim
         # collection of lua helper functions
         plenary-nvim
         # formatting and checking just files

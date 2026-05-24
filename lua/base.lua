@@ -649,3 +649,112 @@ if status_wk and status_fzf then
         { "<leader>tv", "<cmd>vsplit | terminal<cr>i", desc = "Terminal (Vertical Split)" },
     })
 end
+
+local status_dressing, dressing = pcall(require, "dressing")
+if status_dressing then
+    dressing.setup({
+        input = {
+            enabled = true,
+            title_pos = "left",
+            insert_only = false,
+            start_in_insert = true,
+            border = "rounded",
+            relative = "editor",
+            prefer_width = 80,
+            max_width = { 140, 0.9 },
+            min_width = { 40, 0.3 },
+            buf_options = {
+                filetype = "markdown",
+            },
+            win_options = {
+                wrap = true,
+                linebreak = true,
+                list = false,
+                breakindent = true,
+                breakindentopt = "shift:2",
+                winhighlight = "NormalFloat:Normal",
+            },
+            height = 14,
+            min_height = { 5, 0.1 },
+            max_height = { 40, 0.5 },
+            mappings = {
+                n = {
+                    ["<Esc>"] = "Close",
+                    ["q"] = "Close",
+                    ["<CR>"] = "Confirm",
+                },
+                i = {
+                    ["<CR>"] = { "<C-\\><C-n>", false },
+                    ["<C-CR>"] = "Confirm",
+                    ["<M-CR>"] = "Confirm",
+                    ["<Esc>"] = false,
+                    ["<Up>"] = "HistoryPrev",
+                    ["<Down>"] = "HistoryNext",
+                },
+            },
+        },
+    })
+end
+
+vim.api.nvim_create_user_command("SllmScratch", function()
+    local buf = vim.api.nvim_create_buf(false, true)
+    vim.bo[buf].buftype = "nofile"
+    vim.bo[buf].bufhidden = "wipe"
+    vim.api.nvim_buf_set_name(buf, "sllm-prompt")
+    vim.bo[buf].filetype = "markdown" -- Fixed target buffer reference
+
+    -- Dynamic Centering Math
+    local width = math.floor(vim.o.columns * 0.6)
+    local height = math.floor(vim.o.lines * 0.6)
+    local row = math.floor((vim.o.lines - height) / 2)
+    local col = math.floor((vim.o.columns - width) / 2)
+
+    -- Open floating window and capture its ID
+    local win = vim.api.nvim_open_win(buf, true, {
+        relative = "editor",
+        width = width,
+        height = height,
+        row = row,
+        col = col,
+        style = "minimal",
+        border = "rounded",
+    })
+
+    -- Explicit UI cleanup helper
+    local function close_scratch()
+        if vim.api.nvim_win_is_valid(win) then
+            vim.api.nvim_win_close(win, true)
+        end
+        if vim.api.nvim_buf_is_valid(buf) then
+            vim.api.nvim_buf_delete(buf, { force = true })
+        end
+    end
+
+    -- Explicit data extraction helper
+    local function send_scratch()
+        -- Must extract text BEFORE destroying the buffer context
+        local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+        local text = table.concat(lines, "\n")
+
+        close_scratch()
+
+        if text ~= "" then
+            require("sllm").send_prompt(text)
+        end
+    end
+
+    -- Normal mode mappings
+    vim.keymap.set("n", "<Esc>", close_scratch, { buffer = buf, desc = "Close without sending" })
+    vim.keymap.set("n", "q", close_scratch, { buffer = buf, desc = "Close without sending" })
+    vim.keymap.set("n", "<CR>", send_scratch, { buffer = buf, desc = "Send prompt and close" })
+
+    -- Insert mode mappings
+    vim.keymap.set("i", "<C-CR>", send_scratch, { buffer = buf, desc = "Send prompt (Ctrl+Enter)" })
+    vim.keymap.set("i", "<M-CR>", send_scratch, { buffer = buf, desc = "Send prompt (Alt+Enter)" })
+
+    -- Start in insert mode
+    vim.cmd("startinsert")
+end, {})
+
+-- Keymap to trigger scratch prompt
+vim.keymap.set("n", "<leader>sb", ":SllmScratch<CR>", { desc = "Open scratch prompt for sllm" })

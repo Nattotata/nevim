@@ -5,7 +5,7 @@
     {
       nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
       sllm-src = {
-        url = "github:mozanunal/sllm.nvim";
+        url = "github:Nattotata/sllm.nvim";
         flake = false;
       };
     };
