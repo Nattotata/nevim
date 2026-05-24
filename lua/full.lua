@@ -21,17 +21,10 @@ local function setup_server(server_name, opts)
         end
     end
 end
--- 1. TYPESCRIPT & JAVASCRIPT
 setup_server("ts_ls")
-
--- 2. SVELTE
 setup_server("svelte")
-
--- 3. PYTHON
 setup_server("pyright")
 setup_server("ruff")
-
--- 4. LUA
 setup_server("lua_ls", {
     settings = {
         Lua = {
@@ -43,8 +36,6 @@ setup_server("lua_ls", {
         },
     },
 })
-
--- 5. NIX
 setup_server("nil_ls")
 
 -- 6. IMAGE PREVIEWS (Optional/Experimental)
@@ -81,6 +72,7 @@ local endpoint = os.getenv("OPENAI_API_BASE")
 require("sllm").setup({
     default_model = "ds-flash",
     default_mode = "engineer", -- template
+    scroll_to_bottom = false,
     pick_func = require("fzf-lua").ui_select,
     online_enabled = false,
     window_type = "vertical",
