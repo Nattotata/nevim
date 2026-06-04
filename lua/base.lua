@@ -404,6 +404,7 @@ if status_wk and status_fzf then
 
         -- Find/Search Group (FZF)
         { "<leader>f", group = "Files" },
+        { "<leader>fc", "<cmd>FzfLua commands<cr>", desc = "Search Command" },
         { "<leader>fk", "<cmd>FzfLua keymaps<cr>", desc = "Search Keymaps" },
         { "<leader>fg", "<cmd>FzfLua live_grep<cr>", desc = "Live Grep" },
         { "<leader>fb", "<cmd>FzfLua buffers<cr>", desc = "Search Buffers" },
