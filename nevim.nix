@@ -116,6 +116,8 @@ let
         smear-cursor-nvim
         # env file parsing
         direnv-vim
+        # search and replace
+        grug-far-nvim
       ] ++ fullPlugins;
     };
     extraMakeWrapperArgs = "--prefix PATH : ${pkgs.lib.makeBinPath [ pkgs.llm pkgs.direnv pkgs.ripgrep pkgs.fd pkgs.fzf pkgs.git ]}";

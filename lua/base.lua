@@ -389,6 +389,16 @@ local function theme_picker()
     })
 end
 
+-- grug-far (search and replace)
+local status_grug, grug = pcall(require, "grug-far")
+if status_grug then
+    grug.setup({
+        -- feel free to override defaults, e.g.:
+        -- engine = "rg",
+        -- openTarget = "vsplit",
+    })
+end
+
 if status_wk and status_fzf then
     wk.add({
         -- git
@@ -406,6 +416,23 @@ if status_wk and status_fzf then
         { "<leader>f", group = "Files" },
         { "<leader>fc", "<cmd>FzfLua commands<cr>", desc = "Search Command" },
         { "<leader>fk", "<cmd>FzfLua keymaps<cr>", desc = "Search Keymaps" },
+        { "<leader>fr", "<cmd>GrugFar<cr>", desc = "Grug Far (search & replace)" },
+        {
+            "<leader>fR",
+            function()
+                local buf = vim.api.nvim_get_current_buf()
+                local start_line = vim.fn.line("v")
+                local end_line = vim.fn.line(".")
+                if start_line > end_line then
+                    start_line, end_line = end_line, start_line
+                end
+                local lines = vim.api.nvim_buf_get_lines(buf, start_line - 1, end_line, false)
+                local selection = table.concat(lines, "\n")
+                require("grug-far").open({ vimgrep = selection })
+            end,
+            mode = "x",
+            desc = "Grug Far (replace selection)",
+        },
         { "<leader>fg", "<cmd>FzfLua live_grep<cr>", desc = "Live Grep" },
         { "<leader>fb", "<cmd>FzfLua buffers<cr>", desc = "Search Buffers" },
         {
