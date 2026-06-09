@@ -8,8 +8,10 @@ vim.opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }
 
 -- CLIPBOARD & YANK
 vim.opt.clipboard = "unnamedplus"
-vim.keymap.set("x", "p", [["_dP]])
-vim.keymap.set({ "n", "v" }, "y", '"+y')
+vim.keymap.set("n", "p", '"0p', { desc = "Paste last yank" })
+vim.keymap.set("n", "P", '"0P', { desc = "Paste last yank (before)" })
+vim.keymap.set("x", "p", [["_d"0P]], { desc = "Paste over selection (from yank)" })
+vim.keymap.set({ "n", "x" }, "<leader>p", '"+p', { desc = "Paste from clipboard" })
 
 -- BASIC SETTINGS
 vim.opt.number = true
