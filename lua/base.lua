@@ -64,7 +64,6 @@ vim.keymap.set("n", "<leader>wd", "<C-w>c", { desc = "Close Window" })
 -- Wrap in pcall in case gruvbox isn't loaded yet
 pcall(vim.cmd, "colorscheme gruvbox")
 
--- LUALINE (Missing from your previous file)
 local status_lualine, lualine = pcall(require, "lualine")
 if status_lualine then
     lualine.setup({
@@ -416,7 +415,14 @@ if status_wk and status_fzf then
     wk.add({
         -- git
         { "<leader>g", group = "Git" },
-        { "<leader>gg", "<cmd>LazyGit<cr>", desc = "LazyGit (Floating)" },
+        {
+            "<leader>gg",
+            function()
+                vim.cmd("enew | term lazygit")
+            end,
+            desc = "LazyGit (full buffer)",
+        },
+        { "<leader>gf", "<cmd>LazyGit<cr>", desc = "LazyGit (Floating)" },
         { "<leader>gl", "<cmd>LazyGitFilterCurrentFile<cr>", desc = "LazyGit Current File Log" },
         { "<leader>gs", "<cmd>FzfLua git_status<cr>", desc = "Git Status (FZF)" },
         { "<leader>gb", "<cmd>FzfLua git_branches<cr>", desc = "Git Branches" },
