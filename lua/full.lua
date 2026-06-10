@@ -74,7 +74,7 @@ if sllm_status then
     sllm.setup({
         -- Target the custom block below as your starting mode
         llm_cmd = "/etc/profiles/per-user/xof/bin/llm",
-        default_model = "ds-flash",
+        default_model = "gemini-3.5-flash",
         default_mode = "engineer",
         pick_func = require("fzf-lua").ui_select,
         scroll_to_bottom = false,
@@ -87,29 +87,24 @@ if sllm_status then
         ui = {
             show_usage = true,
         },
-        -- modes = {
-        --     ["gemini-flash"] = {
-        --         model = "gemini-2.5-flash",
-        --         window_type = "vertical",
-        --         system_prompt = "You are an expert software engineer. Provide exact code corrections and precise technical documentation. Do not include conversational pleasantries, introductory fluff, or meta-commentary. Prioritize conciseness.",
-        --         model_options = {
-        --             google_search = "1",
-        --         },
-        --     },
-        --     ["gemini-pro"] = {
-        --         model = "gemini-2.5-pro",
-        --         window_type = "vertical",
-        --         system_prompt = "You are an elite software architect and logic engineer. Analyze architectural tradeoffs, fix deep bugs, and optimize logic layers cleanly.",
-        --         model_options = {
-        --             google_search = "1",
-        --         },
-        --     },
-        --     ["deepseek-pro"] = {
-        --         model = "ds-pro",
-        --         window_type = "vertical",
-        --         system_prompt = "You are a raw code generation engine. Return clean, unadorned blocks of production code matching specifications.",
-        --     },
-        -- },
+        modes = {
+            ["inline-gemini-flash"] = {
+                model = "gemini-2.5-flash",
+                window_type = "vertical",
+                system_prompt = "You are an expert software engineer. Provide exact code corrections and precise technical documentation. Do not include conversational pleasantries, introductory fluff, or meta-commentary. Prioritize conciseness.",
+                model_options = {
+                    google_search = "1",
+                },
+            },
+            ["inline-gemini-pro"] = {
+                model = "gemini-2.5-pro",
+                window_type = "vertical",
+                system_prompt = "You are an elite software architect and logic engineer. Analyze architectural tradeoffs, fix deep bugs, and optimize logic layers cleanly.",
+                model_options = {
+                    google_search = "1",
+                },
+            },
+        },
         -- Prompt parameters must reside within defined modes
         -- modes = {
         --     engineer = {
@@ -125,20 +120,3 @@ if sllm_status then
     vim.keymap.set("n", "<leader>sd", "<cmd>LLMAddDiagnostics<cr>", { desc = "Append LSP diagnostics" })
     vim.keymap.set("n", "<leader>sr", "<cmd>LLMReset<cr>", { desc = "Clear history" })
 end
--- require("sllm").setup({
---     default_model = "ds-flash",
---     default_mode = "engineer", -- template
---     scroll_to_bottom = false,
---     pick_func = require("fzf-lua").ui_select,
---     online_enabled = false,
---     window_type = "vertical",
---     reset_ctx_each_prompt = false,
---     on_start_new_chat = false,
---     chain_limit = 200,
---     keymaps = {
---         complete = false,
---     },
---     ui = {
---         show_usage = true,
---     },
--- })
