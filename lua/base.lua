@@ -6,18 +6,6 @@ vim.g.maplocalleader = " "
 vim.opt.list = true
 vim.opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }
 
--- CLIPBOARD & YANK (manual, no unnamedplus)
-vim.opt.clipboard = "" -- no automatic sync
-vim.opt.clipboard:append("unnamed") -- optional: still sync unnamed with '* (X11) but not '+ (macOS)? Actually better to handle manually
--- Yank to system clipboard (also puts text into register "0)
-vim.keymap.set({ "n", "v" }, "y", '"+y', { desc = "Yank to system clipboard" })
--- Paste from yank register by default (register "0)
-vim.keymap.set("n", "p", '"0p', { desc = "Paste last yank" })
-vim.keymap.set("n", "P", '"0P', { desc = "Paste last yank (before)" })
-vim.keymap.set("x", "p", [["_d"0P]], { desc = "Paste over selection (from yank)" })
--- Paste from system clipboard explicitly
-vim.keymap.set({ "n", "x" }, "<leader>p", '"+p', { desc = "Paste from clipboard" })
-
 -- BASIC SETTINGS
 vim.opt.number = true
 vim.opt.shiftwidth = 4
