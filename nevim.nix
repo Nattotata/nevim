@@ -22,6 +22,8 @@ let
     ruff
     lua-language-server
     nil # Nix LSP
+    vscode-langservers-extracted # VSCode CSS LSP
+    tailwindcss-language-server
   ] else [ ];
 
   fullPlugins = with pkgs.vimPlugins; if profile == "desktop" then [
@@ -120,7 +122,14 @@ let
         grug-far-nvim
       ] ++ fullPlugins;
     };
-    extraMakeWrapperArgs = "--prefix PATH : ${pkgs.lib.makeBinPath [ pkgs.llm pkgs.direnv pkgs.ripgrep pkgs.fd pkgs.fzf pkgs.git ]}";
+    extraMakeWrapperArgs = "--prefix PATH : ${pkgs.lib.makeBinPath ([ 
+    pkgs.llm
+    pkgs.direnv
+    pkgs.ripgrep
+    pkgs.fd
+    pkgs.fzf
+    pkgs.git
+    ] ++ fullPackages)}";
   };
 in
 {

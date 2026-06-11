@@ -1,3 +1,6 @@
+-- Syncs unnamed register with system (+) clipboard
+vim.opt.clipboard = "unnamedplus"
+
 -- SET LEADER KEY
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "

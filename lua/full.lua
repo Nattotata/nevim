@@ -25,6 +25,32 @@ setup_server("ts_ls")
 setup_server("svelte")
 setup_server("pyright")
 setup_server("ruff")
+setup_server("tailwindcss", {
+    capabilities = capabilities,
+    root_dir = function(fname)
+        -- Strictly anchor the server to the root of your project
+        return vim.fs.root(fname, { "tailwind.config.js", "tailwind.config.cjs", "package.json" })
+    end,
+    settings = {
+        tailwindcss = {
+            -- Explicitly limit directory scanning to prevent the server from escaping your repository
+            files = {
+                exclude = { "**/.git/**", "**/node_modules/**", "**/result/**", "**/dist/**" },
+            },
+        },
+    },
+})
+setup_server("cssls", {
+    capabilities = capabilities,
+    settings = {
+        css = {
+            validate = true,
+            lint = {
+                unknownAtRules = "ignore", -- Keeps Tailwind directives from triggering false syntax errors
+            },
+        },
+    },
+})
 setup_server("lua_ls", {
     settings = {
         Lua = {
