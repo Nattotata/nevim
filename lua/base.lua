@@ -116,8 +116,9 @@ if status_conform then
     conform.setup({
         formatters_by_ft = {
             lua = { "stylua" },
-            javascript = { "prettierd", "prettier", stop_after_first = true },
-            typescript = { "prettierd", "prettier", stop_after_first = true },
+            json = { "prettier" },
+            javascript = { "prettier", stop_after_first = true },
+            typescript = { "prettier", stop_after_first = true },
             svelte = { "prettierd", "prettier", stop_after_first = true },
             nix = { "nixpkgs_fmt" },
         },
