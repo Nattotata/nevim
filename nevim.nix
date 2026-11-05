@@ -1,45 +1,46 @@
-{ pkgs, profile ? "desktop", sllm-src }:
+{ pkgs, profile ? "desktop" }:
 
 let
-  sllm-plugin = pkgs.vimUtils.buildVimPlugin
-    {
-      name = "sllm-nvim";
-      src = sllm-src;
-      # installPhase = ''
-      #   mkdir -p $out
-      #   cp -r ./* $out/
-      # '';
-      # dontUnpack = true;
-      # unpackPhase = "cp -a ${sllm-src} . && chmod -R +w .";
-    };
-  baseLua = builtins.readFile ./lua/base.lua;
-  fullLua = if profile == "desktop" then builtins.readFile ./lua/full.lua else "";
+  lib = pkgs.lib;
 
-  fullPackages = with pkgs; if profile == "desktop" then [
+  # Lua sources, exposed on the runtimepath so that runtime errors report real
+  # file:line locations instead of an anonymous pack file.
+  luaDir = pkgs.runCommandLocal "nevim-lua" { } ''
+    mkdir -p $out
+    cp -r ${./lua} $out/lua
+  '';
+
+  # Language servers / formatters (desktop only).
+  fullPackages = with pkgs; lib.optionals (profile == "desktop") [
     typescript-language-server
     svelte-language-server
     pyright
     ruff
     lua-language-server
     nil # Nix LSP
-    vscode-langservers-extracted # VSCode CSS LSP
+    vscode-langservers-extracted # CSS/HTML/JSON/... LSPs
     tailwindcss-language-server
-  ] else [ ];
+  ];
 
-  fullPlugins = with pkgs.vimPlugins; if profile == "desktop" then [
-    sllm-plugin
-  ] else [ ];
+  # Tools made available to nvim (and to its child processes) via PATH.
+  runtimeTools = with pkgs; [
+    curl
+    direnv
+    fd
+    fzf
+    git
+    ripgrep
+  ];
 
   nevim = pkgs.neovim.override {
     configure = {
       customRC = ''
-        lua << takovydlefousy
-        ${baseLua}
-        ${if profile == "desktop" then fullLua else ""}
-        takovydlefousy
+        lua vim.opt.rtp:prepend("${luaDir}")
+        lua require("base")
+        ${lib.optionalString (profile == "desktop") ''lua require("full")''}
       '';
       packages.myVimPackage.start = with pkgs.vimPlugins; [
-        # Babysitter for highlighting abstract syntax trees
+        # Enhanced syntax highlighting; parsers are bundled here.
         (nvim-treesitter.withPlugins (p: with p; [
           lua
           nix
@@ -61,81 +62,61 @@ let
           yaml
           python
         ]))
-        # Which key does what, allows custom mapping for hints
-        which-key-nvim
-        # Themes
+        which-key-nvim # keybinding hints
+        # themes
         gruvbox-nvim
         tokyonight-nvim
         catppuccin-nvim
         kanagawa-nvim
         vague-nvim
         melange-nvim
-        # status line
+        # status line and top bar
         lualine-nvim
+        bufferline-nvim
         # fuzzy finder
         fzf-lua
-        # file system tree
+        # file tree + its ui library
         neo-tree-nvim
-        # library for ui, dependency of neo tree
         nui-nvim
         mini-icons
-        # dependencies for sllm ui
-        mini-notify
-        mini-pick
         # command line ui
         dressing-nvim
-        # collection of lua helper functions
+        # lua helper functions
         plenary-nvim
-        # formatting and checking just files
+        # just file support
         vim-just
-        # handles language servers
+        # language servers
         nvim-lspconfig
-        # top bar with tabs and filenames
-        bufferline-nvim
-        # visual hints like links in vimium browser extension
+        # visual hints, surround, git signs
         flash-nvim
-        # surround a word with a quote or brackets
         nvim-surround
-        # + and - signs
         gitsigns-nvim
-        # kinda hybrid between raw md and rendered doc
+        # markdown / focus
         render-markdown-nvim
-        # dimms everything expect current block
         twilight-nvim
         # formatting
         conform-nvim
         # git tui
         lazygit-nvim
-        # intro screen
+        # dashboard / filesystem / diagnostics / undo / cursor / env
         alpha-nvim
-        # file system in a buffer
         oil-nvim
-        # project-wide diagnostics
         trouble-nvim
-        # non-linear undo
         undotree
-        # cursor animations
         smear-cursor-nvim
-        # env file parsing
         direnv-vim
         # search and replace
         grug-far-nvim
-      ] ++ fullPlugins;
+      ];
     };
-    extraMakeWrapperArgs = "--prefix PATH : ${pkgs.lib.makeBinPath ([ 
-    pkgs.llm
-    pkgs.direnv
-    pkgs.ripgrep
-    pkgs.fd
-    pkgs.fzf
-    pkgs.git
-    ] ++ fullPackages)}";
+    extraMakeWrapperArgs = "--prefix PATH : ${lib.makeBinPath (runtimeTools ++ fullPackages)}";
   };
 in
 {
-  # This combines the wrapped nvim with its support tools
+  # The wrapped nvim together with all of its support tools.
   binaries = [
     nevim
+    pkgs.curl
     pkgs.ripgrep
     pkgs.fd
     pkgs.fzf
@@ -145,10 +126,11 @@ in
     pkgs.lazygit
     pkgs.stylua
     pkgs.prettier
+    pkgs.prettierd
     pkgs.nixpkgs-fmt
-    pkgs.llm
+    pkgs.just
   ] ++ fullPackages;
 
-  # Reference to the actual nvim binary for the shell script
+  # The actual nvim binary used by the shell scripts.
   nvimPkg = nevim;
 }

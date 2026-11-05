@@ -2,11 +2,11 @@
   "nodes": {
     "nixpkgs": {
       "locked": {
-        "lastModified": 1778869304,
-        "narHash": "sha256-30sZNZoA1cqF5JNO9fVX+wgiQYjB7HJqqJ4ztCDeBZE=",
+        "lastModified": 1793726008,
+        "narHash": "sha256-jQp1wKvbwWdLBASTXkSi/VYmDJ5AbBi1WvcMt9HWJC8=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "d233902339c02a9c334e7e593de68855ad26c4cb",
+        "rev": "1d060086d60cb76a40cf37109f979d88a5bd6396",
         "type": "github"
       },
       "original": {
@@ -18,24 +18,7 @@
     },
     "root": {
       "inputs": {
-        "nixpkgs": "nixpkgs",
-        "sllm-src": "sllm-src"
-      }
-    },
-    "sllm-src": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1779618061,
-        "narHash": "sha256-4nj48wYqi/BnWLJOCtqt/f0xywBOVlMQfVbwEkq1G9A=",
-        "owner": "Nattotata",
-        "repo": "sllm.nvim",
-        "rev": "67dfc9914331166fb128b4b1a60f5bb945054f29",
-        "type": "github"
-      },
-      "original": {
-        "owner": "Nattotata",
-        "repo": "sllm.nvim",
-        "type": "github"
+        "nixpkgs": "nixpkgs"
       }
     }
   },
